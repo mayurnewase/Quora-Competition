@@ -1,0 +1,8 @@
+python serialize.py --data_dir=data --use_extra_features=False --local_validation=True --lower_text=True --max_seq_len=70 --filters="" --do_preprocess=False --validate=True --use_embeddings=False --batch_size=128 --files_to_copy=utils.py,preprocessing.py,tokenizer.py,modelling.py,loader.py,trainer.py --file_impo_lines=17,22 --main_parser_line=28,50
+
+
+
+
+python main.py --data_dir=data --use_extra_features=False --local_validation=True --lower_text=True --max_seq_len=70 --filters="" --do_preprocess=False --validate=True --use_embeddings=False --batch_size=128
+
+
