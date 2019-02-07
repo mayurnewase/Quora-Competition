@@ -18,8 +18,8 @@ parser.add_argument("--validate", default = True)
 parser.add_argument("--local_validation")
 parser.add_argument("--lower_text")
 parser.add_argument("--max_vocab_words", type=int, default=90000)
-parser.add_argument("--max_seq_len", type = int)
-parser.add_argument("--filters")
+parser.add_argument("--max_seq_len", type = int, default=72)
+parser.add_argument("--filters", default="")
 parser.add_argument("--use_embeddings", default = "False")
 parser.add_argument("--load_glove", default = None)
 parser.add_argument("--load_fast", default = None)
@@ -30,6 +30,8 @@ parser.add_argument("--concat_matrix", default = None)
 parser.add_argument("--splits", type = int , default = 2)
 parser.add_argument("--epochs", type = int , default = 5)
 parser.add_argument("--batch_size", type = int , default = 512)
+parser.add_argument("--save_result", type = str, default=True)	
+parser.add_argument("--result_dir", type = str, default="./")	
 parser.add_argument("--files_to_copy", type = str)
 parser.add_argument("--file_impo_lines", type=str)
 parser.add_argument("--main_parser_lines", type=str)
@@ -48,7 +50,7 @@ w.write(
 	"\n\nimport argparse\n\n"
 	"parser = argparse.ArgumentParser() \n"
 	"parser.add_argument(\"--data_dir\", default = " + "\""+args.data_dir+"/\"" + ")\n"
-	"parser.add_argument(\"--embed_dir\", default =" + str(args.embed_dir)+ ")\n"
+	"parser.add_argument(\"--embed_dir\", default =" +"\"" +str(args.embed_dir)+ "/\"" +")\n"
 	"parser.add_argument(\"--do_preprocess\", default =" + str(args.do_preprocess)+ ")\n"
 	"parser.add_argument(\"--use_extra_features\", default =" + str(args.use_extra_features)+ ")\n"
 	"parser.add_argument(\"--validate\", default =" + str(args.validate)+ ")\n"
@@ -67,6 +69,8 @@ w.write(
 	"parser.add_argument(\"--splits\", type = int , default =" + str(args.splits)+ ")\n"
 	"parser.add_argument(\"--epochs\", type = int , default =" + str(args.epochs)+ ")\n"
 	"parser.add_argument(\"--batch_size\", type = int , default =" + str(args.batch_size)+ ")\n"
+	"parser.add_argument(\"--save_result\", type = str, default="+ str(args.save_result) + ")\n"	
+	"parser.add_argument(\"--result_dir\", type = str, default=" + "\""+str(args.result_dir) + "/\"" + ")\n"
 	"args = parser.parse_args()"
 	)
 

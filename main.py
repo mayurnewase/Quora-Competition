@@ -28,14 +28,14 @@ def main():
 	parser = argparse.ArgumentParser(description = "feed me properly")
 	parser.add_argument("--data_dir")
 	parser.add_argument("--embed_dir")
-	parser.add_argument("--embed_type")
-	parser.add_argument("--do_preprocess")
+	#parser.add_argument("--embed_type")
+	parser.add_argument("--do_preprocess", type=str, default="True")
 	parser.add_argument("--use_extra_features")
 	parser.add_argument("--validate", default = True)
-	parser.add_argument("--local_validation")
+	parser.add_argument("--local_validation", type=str, default= "True")
 	parser.add_argument("--lower_text")
 	parser.add_argument("--max_vocab_words", type=int, default=90000)
-	parser.add_argument("--max_seq_len", type = int)
+	parser.add_argument("--max_seq_len", type = int, default=70)
 	parser.add_argument("--filters")
 	parser.add_argument("--use_embeddings", default = "False")
 	parser.add_argument("--load_glove", default = None)
@@ -47,6 +47,9 @@ def main():
 	parser.add_argument("--splits", type = int , default = 2)
 	parser.add_argument("--epochs", type = int , default = 5)
 	parser.add_argument("--batch_size", type = int , default = 512)
+
+	parser.add_argument("--save_result", type = str, default=True)	
+	parser.add_argument("--result_dir", type = str, default="./")	
 	args = parser.parse_args()
 
 	
@@ -57,15 +60,17 @@ def main():
 
 	X_local_test = None
 	Y_local_test = None
-	train_feats = np.zeros((train.shape[0], 1))
-	test_feats = np.zeros((test.shape[0], 1))
-	local_test_feats = np.zeros((n_test, 1))
+	train_feats = np.zeros((train.shape[0], 2))
+	test_feats = np.zeros((test.shape[0], 2))
+	local_test_feats = np.zeros((n_test, 2))
 
 	if(args.do_preprocess == "True"):
+		print("--------preprocessing------------")
 		preproc = preprocess(train, test, args.use_extra_features, 
 			args.lower_text)
 		train, test, train_feats, test_feats = preproc.FullPreprocessing()
 	print("after preprocess ", train.shape, test.shape)
+	
 	#Local Validation
 	if (args.local_validation == "True"):
 		print("--------preparing cross_validation------------")
@@ -73,7 +78,7 @@ def main():
 		train = temp.iloc[:-n_test]
 		X_local_test = temp.iloc[-n_test:]
 		del temp
-		y_local_test = X_local_test.loc[:, "target"].values
+		Y_local_test = X_local_test.loc[:, "target"].values
 		print("in local_val ", train.shape, X_local_test.shape)
 		temp = train_feats.copy()
 		train_feats = temp[:-n_test]
@@ -126,7 +131,7 @@ def main():
 			else:				
 				model = Model(300, args.max_vocab_words, args.max_seq_len ,mean_matrix)
 	else:
-		print("not loading embeddings")
+		print("skipping loading embeddings")
 		if(args.use_extra_features == "True"):
 				model = ModelWithFeats(300, args.max_vocab_words, args.max_seq_len)
 		else:
@@ -138,28 +143,35 @@ def main():
 	print("-----------generating data-------------")
 	test_loader, local_test_loader, splits, train_preds, test_preds, local_test_preds = GetData(X_test, X_local_test, 
 		X_train, Y_train, test_feats,local_test_feats , args.splits, args.batch_size , args.use_extra_features)
+
+	logger = pd.DataFrame()
 	
 	print("-----------starting training--------------")
 	train_glove, test_glove, local_test_glove = trainer(splits, model, 
 		X_train, Y_train , args.epochs, test_loader, local_test_loader
-		,train_preds, test_preds, local_test_preds, train_feats, args.batch_size ,args.validate ,args.use_extra_features)
+		,train_preds, test_preds, local_test_preds, train_feats, args.batch_size ,args.validate ,args.use_extra_features, logger)
 
-	op = threshold_search(train_Y, train_glove)
-	print(op["f1"], op["threshold"])
-	best = metrics.f1_score(local_test_Y, local_test_glove.mean(axis = 1) > op["threshold"])
+	op = threshold_search(Y_train, train_glove)
+	logger.loc[logger.shape[0] - args.epochs , "final_train_f1"] = op["f1"]
+
+	best = metrics.f1_score(Y_local_test, local_test_glove.mean(axis = 1) > op["threshold"])
+	logger.loc[logger.shape[0] - args.epochs, "mean_local_test_f1"] = best
+	
+	s = pd.DataFrame(test_glove).corr()
+	a = []
+	for i in range(s.shape[0]):
+	    for j in range(s.shape[1]):
+	        if(i != j):
+	            a.append(s.iloc[i,j])
+	logger.loc[logger.shape[0] - args.epochs, "test_corr"] = np.mean(a)
+	logger.loc[logger.shape[0], :] = "-"
 	print(best)
 
+	print(logger)
 
-
-
-
-
-
-
-
-
-
-
+	if(args.save_result == "True"):
+		logger.to_csv(args.result_dir + "/glove_only.csv")
+		s.to_csv(args.result_dir + "/glove_only_corr.csv")
 
 if __name__ == "__main__":
 	main()

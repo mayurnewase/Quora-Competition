@@ -9,8 +9,9 @@ from utils import *
 import time
 from tqdm import tqdm
 from sklearn import metrics
+import pandas as pd
 
-def train_model(model,folds_list, test_loader, local_test_loader, n_epochs, batch_size ,validate, use_extra_features):
+def train_model(model,folds_list, test_loader, local_test_loader, n_epochs, split_no , batch_size, log_start, logger, validate, use_extra_features):
     print("\n --------training model----------")
     optimizer = torch.optim.Adam(model.parameters())
     
@@ -53,6 +54,8 @@ def train_model(model,folds_list, test_loader, local_test_loader, n_epochs, batc
             
             search_result = threshold_search(folds_list[3].cpu().numpy(), valid_preds)
             val_f1, val_threshold = search_result['f1'], search_result['threshold']
+            logger.loc[epoch + log_start, "fold"+str(split_no)] = val_f1
+
             elapsed_time = time.time() - start_time
             print('Epoch {}/{} \t loss={:.4f} \t val_loss={:.4f} \t val_f1={:.4f} best_t={:.2f} \t time={:.2f}s'.format(
                 epoch + 1, n_epochs, avg_loss, avg_val_loss, val_f1, val_threshold, elapsed_time))
@@ -83,8 +86,9 @@ def train_model(model,folds_list, test_loader, local_test_loader, n_epochs, batc
 
     return valid_preds, test_preds, test_preds_local
 
-def trainer(splits, model_orig , train_X, train_Y, epochs, test_loader, local_test_loader ,train_preds, test_preds, local_test_preds, train_feat, batch_size,validate ,use_extra_features):
+def trainer(splits, model_orig , train_X, train_Y, epochs, test_loader, local_test_loader ,train_preds, test_preds, local_test_preds, train_feat, batch_size,validate ,use_extra_features, logger):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    log_start = logger.shape[0]
     print("\n ---------splitting----------")
     for split_no, (train_idx, valid_idx) in enumerate(splits):
         
@@ -104,7 +108,7 @@ def trainer(splits, model_orig , train_X, train_Y, epochs, test_loader, local_te
         print("Split {}/{}".format(split_no+1,len(splits)))
         pred_val_fold, pred_test_fold, pred_local_test_fold = train_model(model, folds_list,
                                                                           test_loader, local_test_loader,
-                                                                           epochs , batch_size, validate, use_extra_features)
+                                                                           epochs ,split_no , batch_size, log_start, logger , validate, use_extra_features)
         
         train_preds[valid_idx] = pred_val_fold
         test_preds[:, split_no] = pred_test_fold
