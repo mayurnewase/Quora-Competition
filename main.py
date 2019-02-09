@@ -28,7 +28,6 @@ def main():
 	parser = argparse.ArgumentParser(description = "feed me properly")
 	parser.add_argument("--data_dir")
 	parser.add_argument("--embed_dir")
-	#parser.add_argument("--embed_type")
 	parser.add_argument("--do_preprocess", type=str, default="True")
 	parser.add_argument("--use_extra_features")
 	parser.add_argument("--validate", default = True)
@@ -49,13 +48,13 @@ def main():
 	parser.add_argument("--batch_size", type = int , default = 512)
 
 	parser.add_argument("--save_result", type = str, default=True)	
-	parser.add_argument("--result_dir", type = str, default="./")	
+	parser.add_argument("--result_dir", type = str, default=".")	
 	args = parser.parse_args()
 
 	
 	# Load data
-	train = pd.read_csv(args.data_dir+ "/train.csv")[:10000]
-	test = pd.read_csv(args.data_dir + "/test.csv")[:100]
+	train = pd.read_csv(args.data_dir+ "train.csv")[:10000]
+	test = pd.read_csv(args.data_dir + "test.csv")[:100]
 	n_test = len(test) * 3
 
 	X_local_test = None
@@ -131,7 +130,7 @@ def main():
 			else:				
 				model = Model(300, args.max_vocab_words, args.max_seq_len ,mean_matrix)
 	else:
-		print("skipping loading embeddings")
+		print("---------------skipping loading embeddings--------------------")
 		if(args.use_extra_features == "True"):
 				model = ModelWithFeats(300, args.max_vocab_words, args.max_seq_len)
 		else:

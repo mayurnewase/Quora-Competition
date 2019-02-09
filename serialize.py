@@ -15,7 +15,7 @@ parser.add_argument("--embed_dir")
 parser.add_argument("--do_preprocess")
 parser.add_argument("--use_extra_features")
 parser.add_argument("--validate", default = True)
-parser.add_argument("--local_validation")
+parser.add_argument("--local_validation", default = True)
 parser.add_argument("--lower_text")
 parser.add_argument("--max_vocab_words", type=int, default=90000)
 parser.add_argument("--max_seq_len", type = int, default=72)
@@ -31,7 +31,7 @@ parser.add_argument("--splits", type = int , default = 2)
 parser.add_argument("--epochs", type = int , default = 5)
 parser.add_argument("--batch_size", type = int , default = 512)
 parser.add_argument("--save_result", type = str, default=True)	
-parser.add_argument("--result_dir", type = str, default="./")	
+parser.add_argument("--result_dir", type = str, default=".")	
 parser.add_argument("--files_to_copy", type = str)
 parser.add_argument("--file_impo_lines", type=str)
 parser.add_argument("--main_parser_lines", type=str)
@@ -47,32 +47,32 @@ for file in args.files_to_copy.split(","):
 	r.close()
 
 w.write(
-	"\n\nimport argparse\n\n"
-	"parser = argparse.ArgumentParser() \n"
-	"parser.add_argument(\"--data_dir\", default = " + "\""+args.data_dir+"/\"" + ")\n"
-	"parser.add_argument(\"--embed_dir\", default =" +"\"" +str(args.embed_dir)+ "/\"" +")\n"
-	"parser.add_argument(\"--do_preprocess\", default =" + str(args.do_preprocess)+ ")\n"
-	"parser.add_argument(\"--use_extra_features\", default =" + str(args.use_extra_features)+ ")\n"
-	"parser.add_argument(\"--validate\", default =" + str(args.validate)+ ")\n"
-	"parser.add_argument(\"--local_validation\", default ="+ str( args.lower_text)+ ")\n"
-	"parser.add_argument(\"--lower_text\", default =" + str(args.lower_text)+ ")\n"
-	"parser.add_argument(\"--max_vocab_words\", type=int, default="+ str(args.max_vocab_words)+ ")\n"
-	"parser.add_argument(\"--max_seq_len\", type =int, default="+str(args.max_seq_len) +")\n"
-	"parser.add_argument(\"--filters\", default =" + "\"" + str(args.filters) + "\"" + ")\n"
-	"parser.add_argument(\"--use_embeddings\", default =" + str(args.use_embeddings)+ ")\n"
-	"parser.add_argument(\"--load_glove\", default ="+ str(args.load_glove)+ ")\n"
-	"parser.add_argument(\"--load_fast\", default ="+ str(args.load_fast)+ ")\n"
-	"parser.add_argument(\"--load_para\", default =" + str(args.load_para)+ ")\n"
-	"parser.add_argument(\"--single_matrix\", default =" + str(args.single_matrix)+ ")\n"
-	"parser.add_argument(\"--mean_matrix\", default =" + str(args.mean_matrix)+ ")\n"
-	"parser.add_argument(\"--concat_matrix\", default =" + str(args.concat_matrix)+ ")\n"
-	"parser.add_argument(\"--splits\", type = int , default =" + str(args.splits)+ ")\n"
-	"parser.add_argument(\"--epochs\", type = int , default =" + str(args.epochs)+ ")\n"
-	"parser.add_argument(\"--batch_size\", type = int , default =" + str(args.batch_size)+ ")\n"
-	"parser.add_argument(\"--save_result\", type = str, default="+ str(args.save_result) + ")\n"	
-	"parser.add_argument(\"--result_dir\", type = str, default=" + "\""+str(args.result_dir) + "/\"" + ")\n"
-	"args = parser.parse_args()"
-	)
+	"\n"
+	"class ArgsDummy:\n"+
+	"\tdata_dir ="+ "\"" + str(args.data_dir)+ "/\""+"\n"
+	"\tembed_dir ="+ "\"" + str(args.embed_dir)+ "/\""+"\n"
+	"\tdo_preprocess ="+ "\""+ str(args.do_preprocess)+ "\""+"\n"
+	"\tuse_extra_features ="+ "\""+ str(args.use_extra_features)+ "\""+"\n"
+	"\tvalidate ="+ "\""+ str(args.validate)+ "\""+"\n"
+	"\tlocal_validation ="+ "\""+ str(args.local_validation)+ "\""+"\n"
+	"\tlower_text ="+ "\""+ str(args.lower_text)+ "\""+"\n"
+	"\tmax_vocab_words ="+ str(args.max_vocab_words)+"\n"
+	"\tmax_seq_len =" +str(args.max_seq_len)+"\n"
+	"\tfilters ="+ "\"" +str(args.filters)+ "\""+"\n"
+	"\tuse_embeddings ="+ "\"" +str(args.use_embeddings)+ "\""+"\n"
+	"\tload_glove ="+ "\"" +str(args.load_glove)+ "\""+"\n"
+	"\tload_fast ="+ "\"" +str(args.load_fast)+ "\""+"\n"
+	"\tload_para ="+ "\"" +str(args.load_para)+ "\""+"\n"
+	"\tsingle_matrix ="+ "\"" +str(args.single_matrix)+ "\""+"\n"
+	"\tmean_matrix =" + "\""+str(args.mean_matrix)+ "\""+"\n"
+	"\tconcat_matrix ="+ "\"" +str(args.concat_matrix)+ "\""+"\n"
+	"\tsplits =" +str(args.splits)+"\n"
+	"\tepochs =" +str(args.epochs)+"\n"
+	"\tbatch_size =" +str(args.batch_size)+"\n"
+	"\tsave_result =" +str(args.save_result)+"\n"
+	"\tresult_dir =" + "\""+str(args.result_dir)+ "/\""+"\n"
+	"args = ArgsDummy()\n\n"
+	)	
 
 r = open("main.py", "r")
 #data = r.read()
